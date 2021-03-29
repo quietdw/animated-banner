@@ -10,6 +10,7 @@
       <img :src="src" :style="style" :width="width" :height="height" alt="" />
     </div>
     <div class="taper-line"></div>
+    <canvas></canvas>
   </div>
 </template>
 
@@ -104,6 +105,9 @@ export default {
         if ([5].indexOf(k) >= 0 && this.offsetX > 0) {
           offsetOpacity = this.offsetX / this.wrapperWidth
         }
+        if ([12].indexOf(k) >= 0) {
+          offsetOpacity = -this.getPositiveNumber(Math.abs(this.offsetX / this.wrapperWidth))
+        }
         return {
           src: require(`@/assets/banner/${k}.png`),
           width,
@@ -187,6 +191,13 @@ export default {
     width: 100%;
     height: 100px;
     background: linear-gradient(rgba(0, 0, 0, 0.4), transparent);
+  }
+  canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 180px;
   }
 }
 </style>
