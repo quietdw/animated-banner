@@ -98,17 +98,12 @@ export default {
     imgs() {
       return this.sizeOption.map(({ width, height, opacityRate, offsetXRate }, k) => {
         let offsetOpacity = 0
-        let offsetWidth = 0
         if ([8, 9].indexOf(k) >= 0 && this.offsetX < 0) {
           offsetOpacity = -this.offsetX / this.wrapperWidth
         }
         if ([5].indexOf(k) >= 0 && this.offsetX > 0) {
           offsetOpacity = this.offsetX / this.wrapperWidth
         }
-        if ([12].indexOf(k) >= 0) {
-          offsetOpacity = -this.getPositiveNumber(Math.abs(this.offsetX / this.wrapperWidth))
-        }
-
         return {
           src: require(`@/assets/banner/${k}.png`),
           width,
