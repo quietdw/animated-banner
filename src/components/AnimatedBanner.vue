@@ -190,7 +190,7 @@ export default {
       const z = this.getRandom(1, 6) / 6
       let size = this.getRandom(4, 6) / z
       size = size < 5 ? 5 : size
-      size = size > 20 ? 20 : size
+      size = size > 18 ? 18 : size
       return {
         x: this.getRandom(0, 1920),
         y: -this.getRandom(20, 100),
