@@ -10,7 +10,7 @@
       <img :src="src" :style="style" :width="width" :height="height" alt="" />
     </div>
     <div class="taper-line"></div>
-    <canvas></canvas>
+    <canvas ref="canvas" :width="wrapperWidth"></canvas>
   </div>
 </template>
 
@@ -91,14 +91,17 @@ export default {
       },
       enterPostionX: 0,
       postionX: 0,
-      wrapperWidth: 1920
+      wrapperWidth: 1920,
+      time: 0,
+      petalsOption: []
     }
   },
   props: {},
   computed: {
     imgs() {
       return this.sizeOption.map(({ width, height, opacityRate, offsetXRate }, k) => {
-        let offsetOpacity = 0
+        let offsetOpacity = 0,
+          blur = 0
         if ([8, 9].indexOf(k) >= 0 && this.offsetX < 0) {
           offsetOpacity = -this.offsetX / this.wrapperWidth
         }
@@ -108,6 +111,10 @@ export default {
         if ([12].indexOf(k) >= 0) {
           offsetOpacity = -this.getPositiveNumber(Math.abs(this.offsetX / this.wrapperWidth))
         }
+        if ([13, 14].indexOf(k) >= 0) {
+          blur = 1
+        }
+
         return {
           src: require(`@/assets/banner/${k}.png`),
           width,
@@ -115,7 +122,8 @@ export default {
           style: {
             transform: `scale(1) translate(${this.defaultOffsetX[k] -
               this.offsetX * offsetXRate}px, ${this.defaultOffsetY[k]}px) rotate(0deg)`,
-            opacity: this.defaultOpacity[k] + offsetOpacity * opacityRate
+            opacity: this.defaultOpacity[k] + offsetOpacity * opacityRate,
+            filter: `blur(${blur}px)`
           }
         }
       })
@@ -125,9 +133,14 @@ export default {
     }
   },
   watch: {},
-  created() {},
+  created() {
+    this.petalsOption = [...Array(60)].map((v) => {
+      return this.generateItem()
+    })
+  },
   mounted() {
     this.wrapperWidth = this.$refs['animated-banner'].getBoundingClientRect().width
+    this.drawPetals()
   },
   methods: {
     handleMouseMove({ x }) {
@@ -137,24 +150,63 @@ export default {
       this.enterPostionX = x
     },
     handleMouseLeave() {
-      this.moveX()
+      this.animateInitX()
     },
-    moveX() {
+    animateInitX() {
       new TWEEN.Tween(this)
         .to({ postionX: this.enterPostionX }, 100)
         .easing(TWEEN.Easing.Linear.None)
         .start()
-      this.animate()
+      this.tweenAnimate()
+    },
+    tweenAnimate(time) {
+      requestAnimationFrame(this.tweenAnimate)
+      TWEEN.update(time)
+    },
+    drawPetals() {
+      const petal0 = new Image()
+      const petal1 = new Image()
+      petal0.src = require(`@/assets/banner/petal0.png`)
+      petal1.src = require(`@/assets/banner/petal1.png`)
+      const draw = () => {
+        const canvas = this.$refs.canvas
+        var ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        this.petalsOption.map(({ x, y, size, speed, angel }, index) => {
+          this.petalsOption[index].x = x + speed * Math.sin((angel / 180) * Math.PI)
+          this.petalsOption[index].y = y + speed * Math.cos((angel / 180) * Math.PI)
+          const image = angel % 2 === 0 ? petal0 : petal1
+          if (x > canvas.width || y > canvas.height) {
+            this.petalsOption[index] = this.generateItem()
+          }
+          return ctx.drawImage(image, x, y, size, size)
+        })
+
+        window.requestAnimationFrame(draw)
+      }
+      window.requestAnimationFrame(draw)
+    },
+    generateItem() {
+      const z = this.getRandom(1, 6) / 6
+      let size = this.getRandom(4, 6) / z
+      size = size < 5 ? 5 : size
+      size = size > 20 ? 20 : size
+      return {
+        x: this.getRandom(0, 1920),
+        y: -this.getRandom(20, 100),
+        size,
+        speed: this.getRandom(3, 6) / (z + 1),
+        angel: this.getRandom(-60, 60)
+      }
+    },
+    getRandom(n, m) {
+      return Math.floor(Math.random() * (m - n + 1) + n)
     },
     getPositiveNumber(v) {
       if (v < 0) {
         return -v
       }
       return v
-    },
-    animate(time) {
-      requestAnimationFrame(this.animate)
-      TWEEN.update(time)
     }
   },
   components: {}
@@ -170,8 +222,8 @@ export default {
   left: 0;
   right: 0;
   display: flex;
-  background: red;
   overflow: hidden;
+  user-select: none;
   .layer {
     position: absolute;
     left: 0;
