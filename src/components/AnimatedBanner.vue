@@ -100,7 +100,7 @@ export default {
           rate: { opacity: 2, offsetX: 0.1 },
           default: { offsetX: -278.71, offsetY: 18.58, opacity: 0 },
           blur: 0,
-          opacityDirection: 1,
+          opacityDirection: -1,
         },
         {
           width: 67,
@@ -108,7 +108,7 @@ export default {
           rate: { opacity: 2, offsetX: 0.25 },
           default: { offsetX: -394.83, offsetY: 37.16, opacity: 0 },
           blur: 0,
-          opacityDirection: 1,
+          opacityDirection: -1,
         },
         {
           width: 314,
@@ -175,8 +175,10 @@ export default {
           let offsetOpacity = 0;
           const d = this.offsetX >= 0 ? 1 : -1;
 
-          if (opacityDirection && opacityDirection > 0) {
-            offsetOpacity = (d * this.offsetX) / this.wrapperWidth;
+          if (opacityDirection) {
+            if (d === opacityDirection) {
+              offsetOpacity = (d * this.offsetX) / this.wrapperWidth;
+            }
           } else if (opacityDirection === 0) {
             offsetOpacity = -Math.abs(this.offsetX / this.wrapperWidth);
           }
